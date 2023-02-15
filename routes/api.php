@@ -28,6 +28,7 @@ Route::group([
     Route::post('/register', 'register');
     Route::post('/logout', 'logout');
     Route::post('/refresh', 'refresh');
+    Route::post('/{id}/change-avatar', 'changeAvatar');
     Route::get('/get-user', 'userProfile');
   });
 });

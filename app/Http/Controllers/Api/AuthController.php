@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -102,6 +103,45 @@ class AuthController extends Controller
   public function userProfile()
   {
     return response()->json(auth()->user());
+  }
+
+  public function changeAvatar(Request $request, $id)
+  {
+    try {
+      dd($request->all());
+      $user = User::findOrFail($id);
+      $destination = public_path("storage\\" . $user->avatar);
+      $fileName = "";
+      if ($request->hasFile('new_image')) {
+        if (File::exists($destination)) {
+          File::delete($destination);
+        }
+
+        $fileName = $request->file('new_image')->store('posts', 'public');
+      } else {
+        $fileName = $user->avatar;
+      }
+
+      $user->avatar = $fileName;
+      $result = $user->save();
+
+      if ($result) {
+        return response()->json([
+          'status' => true,
+          'message' => 'Avatar changed'
+        ], 200);
+      } else {
+        return response()->json([
+          'status' => false,
+          'message' => 'change avatar failure'
+        ], 500);
+      }
+    } catch (\Exception $e) {
+      return response()->json([
+        'status' => false,
+        'message' => $e->getMessage()
+      ], 500);
+    }
   }
 
   protected function createToken($token)
